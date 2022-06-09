@@ -27,14 +27,14 @@ public class ScrollViewController : MonoBehaviour
     
     private float currentScrollbarValue;
     private int currentIndex;
-    private List<GameObject> spawnedObjects;
-
-    private bool tried;
+    private bool isGoingDown;
     
+    private List<GameObject> spawnedObjects;
     
     void Start()
     {
         spawnedObjects = new List<GameObject>();
+        
         scrollRect.onValueChanged.AddListener(OnScrollbarChanged);
 
         _infoService.ConfigureData(JsonForAndroid.Json);
@@ -43,27 +43,19 @@ public class ScrollViewController : MonoBehaviour
         SpawnUserInfos(showCount, currentIndex);
     }
     
-    
-    
     public void OnScrollbarChanged(Vector2 vector)
     {
         var newValue = vector.y;
-        
-        if (currentScrollbarValue > newValue)
-        {
-            tried = false;
-        }
-        else
-        {
-            tried = true; 
-        }
-        
+
+        isGoingDown = !(currentScrollbarValue > newValue);
+
         currentScrollbarValue = newValue;
     }
 
+    // Вызывается в событии Begin Drag в объекте People Scroll View
     public void Spawn()
     {
-        if (tried)
+        if (isGoingDown)
         {
             if (currentIndex - showCount > 0)
             {
@@ -88,10 +80,11 @@ public class ScrollViewController : MonoBehaviour
             {
                 Destroy(spawnedObject);
             }
+            
             spawnedObjects.Clear();
         }
         
-        var userInfos = _infoService.GetPagedUserInfo(new PagedModel
+        var userInfos = _infoService.GetPagedUserInfo(new PagginationModel
         {
             TakeCount = take,
             SkipCount = skip
@@ -106,5 +99,11 @@ public class ScrollViewController : MonoBehaviour
                 
             spawnedObjects.Add(infoUi);
         }
+    }
+
+    private void OnDisable()
+    {
+        scrollRect.onValueChanged.RemoveListener(OnScrollbarChanged);
+        
     }
 }

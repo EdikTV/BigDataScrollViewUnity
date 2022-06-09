@@ -6,6 +6,6 @@ namespace Services.Abstracts
     public interface IInfoService
     {
         void ConfigureData(string jsonPath);
-        IEnumerable<UserInfo> GetPagedUserInfo(PagedModel model);
+        IEnumerable<UserInfo> GetPagedUserInfo(PagginationModel model);
     }
 }

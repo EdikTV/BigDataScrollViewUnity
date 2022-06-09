@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Enums;
 using LitJson;
 using Services.Abstracts;
 using Services.Contracts;
@@ -14,13 +15,15 @@ namespace Services.Implementations
         public void ConfigureData (string jsonPath) 
             => _itemData = JsonMapper.ToObject(jsonPath);
 
-        public IEnumerable<UserInfo> GetPagedUserInfo(PagedModel model)
+        public IEnumerable<UserInfo> GetPagedUserInfo(PagginationModel model)
         {
             var userInfos = new List<UserInfo>();
 
             for (var i = model.SkipCount; i < model.SkipCount + model.TakeCount; i++)
             {
-                if (i > _itemData.Count - 1) 
+                var offset = -1; // Так как Count это количество, то значение индекса будет на 1 меньше.
+                
+                if (i > _itemData.Count + offset) 
                 {
                     return userInfos;
                 }
@@ -29,8 +32,8 @@ namespace Services.Implementations
 
                 userInfos.Add(new UserInfo
                 {
-                    Email = itemData["email"].ToString(),
-                    Name = itemData["first_name"].ToString()
+                    Email = itemData[nameof(DataFields.email)].ToString(),
+                    Name = itemData[nameof(DataFields.first_name)].ToString()
                 });
                
             }
